@@ -1,4 +1,6 @@
-﻿using SharpCompress.Archives;
+﻿// Unity Package Extractor By Zuxi https://github.com/imZuxi :: https://imzuxi.com
+
+using SharpCompress.Archives;
 using SharpCompress.Common;
 using System.IO.Compression;
 
@@ -6,7 +8,7 @@ namespace UnityPackageExtractor
 {
     internal class Program
     {
-
+        static List<string> SusFiles = new List<string>();
         static void Main(string[] args)
         {
             // Check if a Unity package file is provided as a command-line argument
@@ -37,6 +39,12 @@ namespace UnityPackageExtractor
 
             // Clean up: delete the working directory
             Directory.Delete(".working", true);
+            if (SusFiles.Count > 0 )
+            {
+                Console.WriteLine("Found Some Sus files.");
+                foreach (string susFile in SusFiles) { Console.WriteLine(susFile); }
+            }
+
 
             Console.WriteLine("Done");
             Console.ReadKey();
@@ -51,8 +59,6 @@ namespace UnityPackageExtractor
             // Loop through subdirectories in the working directory
             foreach (string subDirectory in Directory.GetDirectories(".working"))
             {
-              
-
                 // Get file path from the 'pathname' file in the current subdirectory
                 string file_path = File.ReadAllText(Path.Combine(subDirectory, "pathname"));
 
@@ -63,7 +69,8 @@ namespace UnityPackageExtractor
 
                 // Copy the asset file to the save path if it exists
                 string assetFilePath = Path.Combine(subDirectory, "asset");
-                if (File.Exists(assetFilePath))
+                if (file_path.Contains(".cs") || file_path.Contains(".dll"))
+                    if (File.Exists(assetFilePath))
                 {
                     File.Copy(assetFilePath, Path.Combine(savepath, file_path));
                 }
@@ -71,6 +78,8 @@ namespace UnityPackageExtractor
                 {
                     Console.WriteLine($"Failed to find the file associated with {file_path} note may have already been copyed");
                 }
+
+                if (file_path.Contains(".cs") || file_path.Contains(".dll")) SusFiles.Add(file_path);
             }
         }
 
